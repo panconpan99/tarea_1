@@ -22,6 +22,7 @@ class laberinto:
         self.historial=[]
         self.cola=deque()
         self.lab=mapa
+        self.solucion=[]
 
     def es_final(self):
         return self.estado_actual in self.estado_final
@@ -43,8 +44,7 @@ class laberinto:
             print("Estado Actual\n")
             print(f"["+str(self.estado_actual.get_valor()[0])+","+ str(self.estado_actual.get_valor()[1])+"]\n")
             x = self.estado_actual.get_valor()
-
-        #sol=self.estado_final
+        sol=self.solucion
         i=0
         for fila in mapa:
             j=0
@@ -53,23 +53,22 @@ class laberinto:
                 pos=[i,j]
                 if columna == "1":
                     lugar="1"
-                #elif pos in sol:
-                 #   lugar="H" #no me sale
-                elif pos == x:
-                    lugar="*"
+                elif pos in sol or pos == x:
+                    lugar="+"
                 elif columna =="0":
                     lugar="-"
                 texto+=lugar
                 j+=1
             print(texto)
             i+=1
-                    
+    
     def buscar_padres(self, e):
         if e.get_padre() == None:
             print(f"\n{e.get_accion()}: Nivel {e.get_nivel()}")
             self.mostrar_estado(e)
         else:
             self.buscar_padres(e.get_padre())
+            self.solucion.append(e.get_padre())
             print(f"\n{e.get_accion()}: Nivel {e.get_nivel()}")
             self.mostrar_estado(e)
     

@@ -18,6 +18,4 @@ class nodo_estado:
         return self.padre
     
     def __eq__(self, n):
-        if n is None:
-            return False
-        return self.valor == n.get_valor()
+        return self.valor == n
