@@ -1,6 +1,6 @@
 from nodo import nodo_estado
 from collections import deque
-
+import math
 mapa=[["0","0","0","0","0","1","1","0","0","0","0"],
     ["1","0","1","1","0","1","0","0","1","1","0"],
     ["1","0","1","0","1","0","1","0","1","0","0"],
@@ -12,8 +12,10 @@ mapa=[["0","0","0","0","0","1","1","0","0","0","0"],
     ["1","0","0","0","1","0","0","1","0","0","0"],
     ["1","0","1","0","1","0","0","0","0","1","0"]]
 
+def ordenar_por_heuristica(e):
+    return e.get_distancia()
+
 class laberinto:
-    
 
     def __init__(self,EI,EF):
         self.estado_inicial = nodo_estado(EI,None,"inicio",1)
@@ -23,11 +25,11 @@ class laberinto:
         self.cola=deque()
         self.lab=mapa
         self.solucion=[]
-
+        self.calcular_heuristica(self.estado_inicial)
+    
     def es_final(self):
         return self.estado_actual in self.estado_final
-
-
+    
     def agregar(self, e):
         self.cola.append(e)
         self.historial.append(e)
@@ -61,16 +63,12 @@ class laberinto:
                 j+=1
             print(texto)
             i+=1
-    
     def buscar_padres(self, e):
-        if e.get_padre() == None:
-            print(f"\n{e.get_accion()}: Nivel {e.get_nivel()}")
-            self.mostrar_estado(e)
-        else:
+        if e.get_padre() != None:
             self.buscar_padres(e.get_padre())
             self.solucion.append(e.get_padre())
-            print(f"\n{e.get_accion()}: Nivel {e.get_nivel()}")
             self.mostrar_estado(e)
+        print(f"\n{e.get_accion()}: Nivel {e.get_nivel()}")
     
     def mover(self, direccion):
         fila,columna = self.estado_actual.get_valor()
@@ -110,7 +108,7 @@ class laberinto:
             return nueva_coordenada
     
     def algoritmo_anchura(self):
-        iteracion = 1
+        iteracion=1
         self.estado_actual = self.estado_inicial
         movimientos = ["UP","DOWN","LEFT","RIGHT"]
 
@@ -123,8 +121,7 @@ class laberinto:
                 if not self.esta_historial(estado_temporal) and not estado_temporal.get_valor() == "illegal":
                     self.agregar(estado_temporal)
 
-            print("\nElementos en Historial: " + str(len(self.historial)))
-            print("\nElementos en Cola: " + str(len(self.cola)))
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
             self.estado_actual = self.cola.popleft()
             iteracion += 1
         print("Iteracion: " + str(iteracion) + "\n")
@@ -132,18 +129,16 @@ class laberinto:
         print("\n\n\nHa llegado a Solucion")
         self.buscar_padres(self.estado_actual)
         print("\nALGORITMO EN ANCHURA:")
-        print("\nElementos descubiertos: " + str(len(self.historial)))
-        print("\nElementos en Cola: " + str(len(self.cola)))
-        print("\nIteraciones: " + str(iteracion))
+        print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\nIteraciones: " + str(iteracion))
 
     def add_profundidad(self, pila_sucesores):
         while pila_sucesores.__len__() > 0:
-            e = pila_sucesores.popleft()
+            e = pila_sucesores.pop()
             self.historial.append(e)
             self.cola.appendleft(e)
     
     def algoritmo_profundidad(self):
-        iteracion = 1
+        iteracion=1
         self.estado_actual = self.estado_inicial
         movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
         sucesores = deque()
@@ -159,8 +154,7 @@ class laberinto:
             
             self.add_profundidad(sucesores) 
 
-            print("\nElementos en Historial" + str(len(self.historial)))
-            print("\nElementos en Cola: " + str(len(self.cola)))
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
 
             self.estado_actual = self.cola.popleft()
             iteracion += 1
@@ -170,12 +164,10 @@ class laberinto:
         print("\n\n\nHa llegado a Solucion")
         self.buscar_padres(self.estado_actual)
         print("\nALGORITMO EN PROFUNDIDAD:")
-        print("\nElementos en Historial: " + str(len(self.historial)))
-        print("\nElementos en Cola Estados: " + str(len(self.cola)))
-        print("\nCantidad de Iteraciones: " + str(iteracion))
+        print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\nIteraciones: " + str(iteracion))
 
     def algoritmo_anchura_evalua_hijos(self):
-        iteracion = 1
+        iteracion=1
         self.estado_actual = self.estado_inicial
         self.historial.append(self.estado_actual)
         movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
@@ -192,8 +184,7 @@ class laberinto:
                     if estado_temporal in self.estado_final:
                         break
                 
-            print("\nElementos en Historial" + str(len(self.historial)))
-            print("\nElementos en Cola: " + str(len(self.cola)))
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
 
             self.estado_actual = self.cola.popleft()
             iteracion += 1
@@ -203,12 +194,10 @@ class laberinto:
         print("\n\n\nHa llegado a Solucion")
         self.buscar_padres(self.estado_actual)
         print("\nALGORITMO EN ANCHURA:")
-        print("\nElementos descubiertos: " + str(len(self.historial)))
-        print("\nElementos en Cola: " + str(len(self.cola)))
-        print("\nIteraciones: " + str(iteracion))
+        print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\nIteraciones: " + str(iteracion))
 
     def algoritmo_profundidad_evalua_hijos(self):
-        iteracion = 1
+        iteracion=1
         self.estado_actual = self.estado_inicial
         self.historial.append(self.estado_actual)
         movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
@@ -230,8 +219,7 @@ class laberinto:
                 
             self.add_profundidad(sucesores)
                 
-            print("\nElementos en Historial" + str(len(self.historial)))
-            print("\nElementos en Cola: " + str(len(self.cola)))
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
 
             #Paso al siguiente estado
             if solucion is None:
@@ -245,6 +233,185 @@ class laberinto:
         print("\n\n\nHa llegado a Solucion")
         self.buscar_padres(self.estado_actual)
         print("\nALGORITMO EN PROFUNDIDAD:")
-        print("\nElementos en Historial: " + str(len(self.historial)))
-        print("\nElementos en Cola Estados: " + str(len(self.cola)))
-        print("\nCantidad de Iteraciones: " + str(iteracion))
+        print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\nIteraciones: " + str(iteracion))
+
+    def espacios_manhattan(self,estado,final):
+        d=math.fabs((final.get_valor()[0]-estado.get_valor()[0])+(final.get_valor()[1]-estado.get_valor()[1]))
+        return d
+
+    def espacios_euclideano(self,estado,final):
+        d=math.sqrt(math.pow(final.get_valor()[0]-estado.get_valor()[0],2)+math.pow(final.get_valor()[1]-estado.get_valor()[1],2))
+        return d
+
+    def calcular_heuristica(self, estado):
+        primero = True
+        for final in self.estado_final:
+            if primero:
+                distancia = self.espacios_manhattan(estado, final)
+                #distancia = self.espacios_euclideano(estado, final)
+                primero = False
+            else:
+                nueva_distancia = self.espacios_manhattan(estado, final)
+                #nueva_distancia = self.espacios_euclideano(estado, final)
+
+                if nueva_distancia < distancia:
+                    distancia = nueva_distancia
+        estado.set_distancia(distancia)
+
+    def algoritmo_better_first(self):
+        iteracion=1
+        self.estado_actual = self.estado_inicial
+        self.historial.append(self.estado_actual)
+        movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
+        #movimientos = ["DOWN", "RIGHT", "UP", "LEFT"]
+        #movimientos = ["DOWN","UP", "RIGHT","LEFT"]
+
+        sucesores =[]
+        solucion = None
+
+        while not self.es_final():
+            print(f"Iteración : {iteracion}\n")
+            self.mostrar_estado(None)
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not estado_temporal.get_valor() == "illegal" and not self.esta_historial(estado_temporal):
+                    self.calcular_heuristica(estado_temporal)
+                    sucesores.append(estado_temporal)
+                    if estado_temporal in self.estado_final:
+                        solucion = estado_temporal
+                        break
+            
+            sucesores.sort(key=ordenar_por_heuristica)
+            self.add_profundidad(sucesores)
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
+        
+            if solucion is None:
+                self.estado_actual = self.cola.popleft()
+            else:
+                self.estado_actual = solucion
+            iteracion += 1
+
+        print(f"Iteración : {iteracion}\n")
+        self.mostrar_estado(None)
+
+        #Solucion
+        print("\n\n\nHa llegado a Solucion")
+        self.buscar_padres(self.estado_actual)
+        print("\nResumen Algoritmo Better First\n")
+        print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\nIteraciones: " + str(iteracion))
+
+    def algoritmo_hill_climbing(self):
+        iteracion=1
+        self.estado_actual = self.estado_inicial
+        self.historial.append(self.estado_actual)
+        movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
+        #movimientos = ["DOWN", "RIGHT", "UP", "LEFT"]
+        #movimientos = ["DOWN","UP", "RIGHT","LEFT"]
+
+        sucesores = []
+        solucion = None
+
+        while not self.es_final():
+            print(f"Iteración : {iteracion}\n")
+            self.mostrar_estado(None)
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not estado_temporal.get_valor() == "illegal" and not self.esta_historial(estado_temporal):
+                    self.calcular_heuristica(estado_temporal)
+                    sucesores.append(estado_temporal)
+                    if estado_temporal in self.estado_final:
+                        solucion = estado_temporal
+                        break
+                
+            # Paso de intercambio para quedar al frente de la cola
+            sucesores.sort(key=ordenar_por_heuristica)
+            self.add_profundidad(sucesores)
+
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
+            estado_anterior = self.estado_actual
+            #Paso al siguiente estado
+            if solucion is None:
+                self.estado_actual = self.cola.popleft()
+            else:
+                self.estado_actual = solucion
+
+            if estado_anterior.get_distancia() < self.estado_actual.get_distancia():
+                # este es el caso donde el algoritmo interrumpe la búsqueda.
+                # Mostrar la Solucion
+                print("\nResumen Algoritmo hill climbing\n")
+                print("\nNO HAY SOLUCION!!!\n")
+                print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\nIteraciones: " + str(iteracion))
+                termina_bien = False
+                break
+
+            iteracion += 1
+
+        if termina_bien:
+            # Mostrar el último estado explorado
+            print(f"Iteración : {iteracion}\n")
+            self.mostrar_estado(None)
+
+            # Mostrar la Solucion
+            self.buscar_padres(self.estado_actual)
+            print("\nResumen Algoritmo hill climbing\n")
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\n Iteraciones: " + str(iteracion))
+
+    def add_beam(self, sucesores, b):
+        for estado in sucesores:
+            if b > 0:
+                self.historial.append(estado)
+                self.cola.append(estado)
+                b -= 1
+            else:
+                self.historial.append(estado)
+    
+    def algoritmo_beam(self, b_fijo, b_porcentaje):
+        iteracion=1
+        b = b_fijo
+        self.estado_actual = self.estado_inicial
+        self.historial.append(self.estado_actual)
+        movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
+        #movimientos = ["DOWN", "RIGHT", "UP", "LEFT"]
+        #movimientos = ["DOWN","UP", "RIGHT","LEFT"]
+
+        sucesores = []
+        solucion = None
+
+        while not self.es_final():
+            print(f"Iteración : {iteracion}\n")
+            self.mostrar_estado(None)
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not estado_temporal.get_valor() == "illegal" and not self.esta_historial(estado_temporal):
+                    self.calcular_heuristica(estado_temporal)
+                    sucesores.append(estado_temporal)
+                    if estado_temporal in self.estado_final:
+                        solucion = estado_temporal
+                        break
+                
+            sucesores.sort(key=ordenar_por_heuristica)
+            if b_fijo is None:
+                b = math.ceil(sucesores.__len__()*b_porcentaje)
+            self.add_beam(sucesores, b)
+            sucesores.clear()
+                
+            print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)))
+
+            #Paso al siguiente estado
+            if solucion is None:
+                self.estado_actual = self.cola.popleft()
+            else:
+                self.estado_actual = solucion
+            iteracion += 1
+
+        # Mostrar el último estado explorado
+        print(f"Iteración : {iteracion}\n")
+        self.mostrar_estado(None)
+
+        # Mostrar la Solucion
+        self.buscar_padres(self.estado_actual)
+        print("\nResumen Algoritmo Beam\n")
+        print("\nElementos en Historial: " + str(len(self.historial)) + "\n\nElementos en Cola: " + str(len(self.cola)) + "\n\n Iteraciones: " + str(iteracion))
